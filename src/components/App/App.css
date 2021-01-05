@@ -1,0 +1,13 @@
+.App {
+  margin: 0 auto;
+  max-width: 1440px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.header-image {
+  background-image: url(../../images/header_background.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
