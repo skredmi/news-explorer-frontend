@@ -84,7 +84,6 @@ function Navigation({ onLogin, loggedIn }) {
                 className={`nav__button ${
                   location.pathname === "/saved-news" && "nav__button_black"
                 }`}
-                to="/"
               >
                 Грета
                 <i

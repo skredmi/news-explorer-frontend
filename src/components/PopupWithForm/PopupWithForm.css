@@ -101,6 +101,12 @@
   background: #2a65cc;
 }
 
+.popup__button-save_disabled {
+  background-color: #E6E8EB;
+  color: #B6BCBF;
+  pointer-events: none;
+}
+
 .popup__label {
   font-family: "Inter", Arial, Helvetica, sans-serif;
   font-size: 12px;

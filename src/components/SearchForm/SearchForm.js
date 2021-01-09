@@ -13,6 +13,7 @@ function SearchForm() {
         <input
           className="search-form__input"
           placeholder="Введите тему новости"
+          required
         />
         <button className="search-form__button" type="submit">
           Искать

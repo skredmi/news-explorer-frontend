@@ -20,6 +20,7 @@ function App() {
 
   function handleLoginPopupClick() {
     setIsRegisterPopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setIsLoginPopupOpen(true);
   }
 
