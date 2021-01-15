@@ -2,19 +2,20 @@ import React, { useState } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
-function Login({ isOpen, onClose, onSubmit, onRegister }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+function Login({ isOpen, onClose, onLogin, onSignUp, errorMessage }) {
+  const [data, setData] = useState({ email: "", password: "" });
   const [isValid, setIsValid] = useState({ email: false, password: false });
   const [validationMessage, setIsValidationMessage] = useState({
     email: "",
     password: "",
   });
 
-  function handleInputEmailChange(event) {
+   function handleChange(event) {
     const { name, value } = event.target;
-    setEmail(value);
+    setData({
+      ...data,
+      [name]: value,
+    });
     setIsValid({
       ...isValid,
       [name]: event.target.validity.valid,
@@ -25,22 +26,19 @@ function Login({ isOpen, onClose, onSubmit, onRegister }) {
     });
   }
 
-  function handleInputPasswordChange(event) {
-    const { name, value } = event.target;
-    setPassword(value);
-    setIsValid({
-      ...isValid,
-      [name]: event.target.validity.valid,
-    });
-    setIsValidationMessage({
-      ...validationMessage,
-      [name]: event.target.validationMessage,
-    });
-  }
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+    const { password, email } = data;
+
+    if (!email || !password) {
+      return;
+    }
+    onLogin(password, email);
+    setData({ email: "", password: "" });
+  };
 
   React.useEffect(() => {
-    setPassword("");
-    setEmail("");
+    setData({ email: "", password: "" });
     setIsValidationMessage({ email: "", password: "" });
     setIsValid({ email: false, password: false });
   }, [isOpen]);
@@ -51,13 +49,13 @@ function Login({ isOpen, onClose, onSubmit, onRegister }) {
       title="Вход"
       isOpen={isOpen}
       onClose={onClose}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
       <label className="popup__label">Email</label>
       <input
         className="popup__input"
-        onChange={handleInputEmailChange}
-        value={email}
+        onChange={handleChange}
+        value={data.email}
         id="email-input"
         type="email"
         name="email"
@@ -75,8 +73,8 @@ function Login({ isOpen, onClose, onSubmit, onRegister }) {
       <label className="popup__label">Пароль</label>
       <input
         className="popup__input"
-        onChange={handleInputPasswordChange}
-        value={password}
+        onChange={handleChange}
+        value={data.password}
         id="password-input"
         placeholder="Введите пароль"
         type="password"
@@ -89,15 +87,16 @@ function Login({ isOpen, onClose, onSubmit, onRegister }) {
       >
         {validationMessage.password}
       </span>
+      <span id="error-message" className="popup__error-message popup__error-message_active">{errorMessage}</span>
       <button
         type="submit"
-        className="popup__button-save"
+        className={`${isValid.email && isValid.password ? "popup__button-save" : "popup__button-save popup__button-save_disabled"}`}
       >
         Войти
       </button>
       <p className="popup__text">
         или
-        <button type="button" className="popup__button-link" onClick={onRegister}>
+        <button type="button" className="popup__button-link" onClick={onSignUp}>
           Зарегистрироваться
         </button>
       </p>

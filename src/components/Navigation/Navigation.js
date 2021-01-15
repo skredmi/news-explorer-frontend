@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Navigation.css";
 import { Link, useLocation } from "react-router-dom";
 
-function Navigation({ onLogin, loggedIn }) {
+function Navigation({ onSignIn, loggedIn, onLogOut, name }) {
   const [isHumburgerMenuOpened, setIsHumburgerMenuOpened] = useState(false);
   const location = useLocation();
 
@@ -76,7 +76,7 @@ function Navigation({ onLogin, loggedIn }) {
           </li>
           <li className="nav__list-item">
             {!loggedIn ? (
-              <button onClick={onLogin} className="nav__button">
+              <button onClick={onSignIn} className="nav__button">
                 Авторизоваться
               </button>
             ) : (
@@ -84,15 +84,14 @@ function Navigation({ onLogin, loggedIn }) {
                 className={`nav__button ${
                   location.pathname === "/saved-news" && "nav__button_black"
                 }`}
-                to="/"
               >
-                Грета
+                {name}
                 <i
                   className={`nav__logout-icon ${
                     location.pathname === "/saved-news" &&
                     "nav_logout-icon_black"
                   }`}
-                ></i>
+                onClick={onLogOut} ></i>
               </button>
             )}
           </li>

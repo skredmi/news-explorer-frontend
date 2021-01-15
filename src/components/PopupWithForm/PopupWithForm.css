@@ -101,6 +101,12 @@
   background: #2a65cc;
 }
 
+.popup__button-save_disabled {
+  background-color: #E6E8EB;
+  color: #B6BCBF;
+  pointer-events: none;
+}
+
 .popup__label {
   font-family: "Inter", Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -184,6 +190,23 @@
   padding: 0;
   padding-left: 36px;
   align-self: flex-start;
+}
+
+.popup__error-message {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: block;
+  visibility: hidden;
+  font-weight: normal;
+  font-size: 12px;
+  min-height: 15px;
+  width: 358px;
+  line-height: 15px;
+  color: #ff0000;
+}
+
+.popup__error-message_active {
+  visibility: visible;
 }
 
 @media screen and (max-width: 550px) {

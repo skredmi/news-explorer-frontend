@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
-function Register({ isOpen, onClose, onSubmit, onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-
+function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
+  const [data, setData] = useState({ email: "", password: "", name: "" });
   const [isValid, setIsValid] = useState({
     email: false,
     password: false,
@@ -18,9 +15,12 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
     name: "",
   });
 
-  function handleInputEmailChange(event) {
+  function handleChange(event) {
     const { name, value } = event.target;
-    setEmail(value);
+    setData({
+      ...data,
+      [name]: value,
+    });
     setIsValid({
       ...isValid,
       [name]: event.target.validity.valid,
@@ -31,36 +31,19 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
     });
   }
 
-  function handleInputPasswordChange(event) {
-    const { name, value } = event.target;
-    setPassword(value);
-    setIsValid({
-      ...isValid,
-      [name]: event.target.validity.valid,
+    const handleSubmit = (e) => {
+    e.preventDefault();
+    const { password, email, name } = data;
+    onRegister(password, email, name);
+    setData({
+      email: "",
+      password: "",
+      name: "",
     });
-    setIsValidationMessage({
-      ...validationMessage,
-      [name]: event.target.validationMessage,
-    });
-  }
-
-  function handleInputNameChange(event) {
-    const { name, value } = event.target;
-    setName(value);
-    setIsValid({
-      ...isValid,
-      [name]: event.target.validity.valid,
-    });
-    setIsValidationMessage({
-      ...validationMessage,
-      [name]: event.target.validationMessage,
-    });
-  }
+  };
 
   React.useEffect(() => {
-    setPassword("");
-    setEmail("");
-    setName("");
+    setData({ email: "", password: "", name: "" }); 
     setIsValidationMessage({ email: "", password: "", name: "" });
     setIsValid({ email: false, password: false, name: false });
   }, [isOpen]);
@@ -71,13 +54,13 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
       title="Регистрация"
       isOpen={isOpen}
       onClose={onClose}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
       <label className="popup__label">Email</label>
       <input
         className="popup__input"
-        onChange={handleInputEmailChange}
-        value={email}
+        onChange={handleChange}
+        value={data.email}
         id="email-input"
         type="email"
         name="email"
@@ -95,8 +78,8 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
       <label className="popup__label">Пароль</label>
       <input
         className="popup__input"
-        onChange={handleInputPasswordChange}
-        value={password}
+        onChange={handleChange}
+        value={data.password}
         id="password-input"
         placeholder="Введите пароль"
         type="password"
@@ -112,8 +95,8 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
       <label className="popup__label">Имя</label>
       <input
         className="popup__input"
-        onChange={handleInputNameChange}
-        value={name}
+        onChange={handleChange}
+        value={data.name}
         id="name-input"
         placeholder="Введите имя"
         type="text"
@@ -126,12 +109,13 @@ function Register({ isOpen, onClose, onSubmit, onLogin }) {
       >
         {validationMessage.name}
       </span>
-      <button type="submit" className="popup__button-save">
+      <span id="error-message" className="popup__error-message popup__error-message_active">{errorMessage}</span>
+      <button type="submit" className={`${isValid.email && isValid.password && isValid.name ? "popup__button-save" : "popup__button-save popup__button-save_disabled"}`}>
         Зарегистрироваться
       </button>
       <p className="popup__text">
         или
-        <button type="button" className="popup__button-link" onClick={onLogin}>
+        <button type="button" className="popup__button-link" onClick={onSignIn}>
           Войти
         </button>
       </p>

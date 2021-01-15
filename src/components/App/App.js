@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect, useHistory } from "react-router-dom";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 import "./App.css";
 import About from "../About/About";
 import Footer from "../Footer/Footer";
@@ -11,33 +12,219 @@ import SearchForm from "../SearchForm/SearchForm";
 import Login from "../Login/Login";
 import Register from "../Register/Register";
 import InfoPopup from "../InfoPopup/InfoPopup";
+import * as auth from "../../utils/MainApi";
+import * as news from "../../utils/NewsApi";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import Preloader from "../Preloader/Preloader";
+import NotFound from "../NotFound/NotFound";
+import Error from "../Error/Error";
 
 function App() {
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [isRegisterPopupOpen, setIsRegisterPopupOpen] = useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [articleSaved, setArticleSaved] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [currentUser, setCurrentUser] = useState({});
+  const [name, setName] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [preloader, setPreloader] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const history = useHistory();
 
+  function handleRegister(password, email, name) {
+    auth
+      .register(password, email, name)
+      .then((res) => {
+        if (res.data) {
+          setIsRegisterPopupOpen(false);
+          setIsInfoTooltipOpen(true);
+        } else if (res.message) {
+          setErrorMessage(res.message);
+        } else {
+           setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
+        }
+      })
+      .catch((err) => {
+        if (err === 400) {
+          console.log("некорректно заполнено одно из полей");
+        }
+      });
+  }
+
+    function handleLogin(password, email) {
+    auth
+      .authorize(password, email)
+      .then((data) => {
+        if (data.token) {
+          setLoggedIn(true);
+          setName(name);
+          history.push("/saved-news");
+        } else if (data.message) {
+          setErrorMessage(data.message);
+        } else {
+           setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
+        }
+      })
+      .catch((err) => {
+        if (err === 400) {
+          console.log("не передано одно из полей");
+        } else if (err === 401) {
+          console.log("пользователь с email не найден");
+        }
+      });
+  }
+
+  function tokenCheck() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+    auth
+      .getContent(token)
+      .then((res) => {
+        if (res) {
+          setLoggedIn(true);
+          setName(res.name);
+          setCurrentUser({ name: res.name, id: res._id });
+        }
+      })
+      .catch((err) => {
+        if (err === 401) {
+          console.log("Переданный токен некорректен");
+        }
+      });
+  }
+
+
+  function logOut() {
+    localStorage.removeItem("token");
+    setName("");
+    setLoggedIn(false);
+    history.push("/");
+  }
+
+  React.useEffect(() => {
+    tokenCheck();
+    // const articles = localStorage.getItem("articles")
+    //   ? JSON.parse(localStorage.getItem("articles"))
+    //   : [];
+    // setArticles(articles);
+    // const keyword = localStorage.getItem('keyword')
+    // setKeyword(keyword)
+  }, []);
+
+  function handleSearchNews(keyword) {
+    setArticles([]);
+    localStorage.removeItem("articles");
+    localStorage.removeItem("keyword");
+    setPreloader(true);
+    setNotFound(false);
+    setError(false);
+    news
+      .getNews(keyword)
+      .then((data) => {
+        localStorage.setItem("articles", JSON.stringify(data.articles));
+        localStorage.setItem("keyword", keyword);
+        setArticles(data.articles);
+        setKeyword(keyword);
+        setPreloader(false);
+        setNotFound(false);
+        if (data.articles.length === 0) {
+          setNotFound(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      })
+      .finally(() => {
+        setPreloader(false);
+      });
+  }
+
+  function getMySaveNews() {
+    if (loggedIn) {
+      auth
+        .getArticles()
+        .then((news) => {
+          const arrayMyNews = news.filter((c) => (c.owner === currentUser.id));
+          setArticleSaved(arrayMyNews);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+
+  function handleSaveNews({
+    keyword, title, text, date, source, link, image,
+  }) {
+      auth
+      .createArticle({
+    keyword, title, text, date, source, link, image,
+  })
+      .then((res) => {
+        setArticleSaved([res, ...articleSaved])
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function handleArticleDelete(id) {
+    auth
+      .deleteArticle(id)
+      .then(() => {
+        const newArticles = articleSaved.filter((c) => c._id !== id);
+        setArticleSaved(newArticles);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function findMySevedNews({
+    keyword, title, text, date, source, link, image,
+    article,
+    myArticle }) {
+        const mySavedArticle = articleSaved.find((c) => {
+            if (myArticle) {
+                return c.title === myArticle.title && c.text === myArticle.text;
+            }
+
+            if (article) {
+                return c.title === article.title && c.text === article.description;
+            }
+
+        });
+
+        if (mySavedArticle) {
+            handleArticleDelete(mySavedArticle._id);
+        }
+        else {
+            handleSaveNews({
+    keyword, title, text, date, source, link, image
+  });
+        }
+    }
+
+    React.useEffect(() => {
+        getMySaveNews()
+    }, [currentUser.id, loggedIn]);
+  
   function handleLoginPopupClick() {
     setIsRegisterPopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setIsLoginPopupOpen(true);
   }
 
   function handleRegisterPopupClick() {
     setIsLoginPopupOpen(false);
     setIsRegisterPopupOpen(true);
-  }
-
-  function handleRegisterSubmit(evt) {
-    evt.preventDefault();
-    setIsRegisterPopupOpen(false);
-    setIsInfoTooltipOpen(true);
-  }
-
-  function handleLoginSubmit(evt) {
-    evt.preventDefault();
-    setIsLoginPopupOpen(false);
-    setLoggedIn(true);
   }
 
   function closeAllPopups() {
@@ -67,42 +254,75 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <Switch>
-        <Route path="/saved-news">
-          <Header onLogin={handleLoginPopupClick} loggedIn={loggedIn} />
-          <SavedNewsHeader />
-          <SavedNews />
-          <Footer />
-        </Route>
-        <Route path="/">
-          <div className="header-image">
-            <Header onLogin={handleLoginPopupClick} loggedIn={loggedIn} />
-            <SearchForm />
-          </div>
-          <Main />
-          <About />
-          <Footer />
-          <Login
-            isOpen={isLoginPopupOpen}
-            onClose={closeAllPopups}
-            onSubmit={handleLoginSubmit}
-            onRegister={handleRegisterPopupClick}
-          />
-          <Register
-            isOpen={isRegisterPopupOpen}
-            onClose={closeAllPopups}
-            onSubmit={handleRegisterSubmit}
-            onLogin={handleLoginPopupClick}
-          />
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className="App">
+        <Switch>
+          <ProtectedRoute exact path="/saved-news" loggedIn={loggedIn} currentUser={currentUser}>
+            <Header
+              onSignIn={handleLoginPopupClick}
+              loggedIn={loggedIn}
+              onLogOut={logOut}
+              name={name}
+            />
+            <SavedNewsHeader name={name} articleSaved={articleSaved} />
+            <SavedNews
+              articles={articles}
+              keyword={keyword}
+              handleSaveNews={handleSaveNews}
+              articleSaved={articleSaved}
+              loggedIn={loggedIn}
+              onArticleDelete={handleArticleDelete}
+              getMySaveNews={getMySaveNews}
+            />
+            <Footer />
+          </ProtectedRoute>
+          <Route path="/">
+            <div className="header-image">
+              <Header
+                onSignIn={handleLoginPopupClick}
+                loggedIn={loggedIn}
+                onLogOut={logOut}
+                name={name}
+              />
+              <SearchForm onSearch={handleSearchNews} />
+            </div>
+            <Main
+              articles={articles}
+              keyword={keyword}
+              loggedIn={loggedIn}
+              articleSaved={articleSaved}
+              handleSaveNews={handleSaveNews}
+              onArticleDelete={handleArticleDelete}
+              findMySevedNews={findMySevedNews}
+            />
+            {notFound && <NotFound />}
+            {preloader && <Preloader />}
+            {error && <Error />}
+            <About />
+            <Footer />
+            <Login
+              isOpen={isLoginPopupOpen}
+              onClose={closeAllPopups}
+              onSignUp={handleRegisterPopupClick}
+              onLogin={handleLogin}
+              errorMessage={errorMessage}
+            />
+            <Register
+              isOpen={isRegisterPopupOpen}
+              onClose={closeAllPopups}
+              onSignIn={handleLoginPopupClick}
+              onRegister={handleRegister}
+              errorMessage={errorMessage}
+            />
           <InfoPopup
             isOpen={isInfoTooltipOpen}
             onClose={closeAllPopups}
-            onLogin={handleLoginPopupClick}
+            onSignIn={handleLoginPopupClick}
           />
-        </Route>
-      </Switch>
-    </div>
+          </Route>
+        </Switch>
+      </div>
+    </CurrentUserContext.Provider>
   );
 }
 

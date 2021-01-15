@@ -2,7 +2,7 @@ import React from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
-function InfoPopup({ isOpen, onClose }) {
+function InfoPopup({ isOpen, onClose, onSignIn }) {
   return (
     <PopupWithForm
       name="info"
@@ -11,7 +11,7 @@ function InfoPopup({ isOpen, onClose }) {
       onClose={onClose}
     >
       <p className="popup__info">
-        <button type="button" className="popup__button-link">
+        <button type="button" className="popup__button-link" onClick={onSignIn}>
           Войти
         </button>
       </p>
