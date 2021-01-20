@@ -4,7 +4,16 @@ import NewsCardList from "../NewsCardList/NewsCardList";
 import NewsCard from "../NewsCard/NewsCard";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 
-function Main({ articles, keyword, loggedIn, onArticleDelete, articleSaved, handleSaveNews, findMySevedNews }) {
+function Main({
+  loggedIn,
+  keyword,
+  articles,
+  articleSaved,
+  onArticleDelete,
+  handleArticleSave,
+  findSavedArticles,
+  onSignUp,
+}) {
   const currentUser = useContext(CurrentUserContext);
   const [showButton, setShowButton] = useState(false);
   const [showCards, setShowCards] = useState([]);
@@ -41,12 +50,14 @@ function Main({ articles, keyword, loggedIn, onArticleDelete, articleSaved, hand
             source={article.source.name}
             loggedIn={loggedIn}
             key={key}
-            handleSaveNews={handleSaveNews}
-            findMySevedNews={findMySevedNews}
+            handleArticleSave={handleArticleSave}
+            findSavedArticles={findSavedArticles}
             currentUser={currentUser}
             onArticleDelete={onArticleDelete}
             articleSaved={articleSaved}
             articles={articles}
+            onSignUp={onSignUp}
+            article={article}
           />
         ))}
       </NewsCardList>

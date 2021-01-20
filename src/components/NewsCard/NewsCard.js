@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./NewsCard.css";
 
@@ -11,32 +11,41 @@ function NewsCard({
   source,
   loggedIn,
   sourceLink,
-  onArticleDelete,
-  articles,
-  articleSaved,
-  _id,
   keyword,
-  findMySevedNews,
+  _id,
+  articleSaved,
+  findSavedArticles,
+  onArticleDelete,
   article,
   myArticle,
+  onSignUp,
 }) {
   const [isMark, setIsMark] = useState(false);
   const location = useLocation();
 
   function handleClickSaveArticle() {
-    findMySevedNews({ keyword: keyword, link: sourceLink, image: image, title: title, date: date, text: text, source:source, article, myArticle });
-    setIsMark(true);
+    findSavedArticles({
+      keyword: keyword,
+      link: sourceLink,
+      image: image,
+      title: title,
+      date: date,
+      text: text,
+      source: source,
+      article,
+      myArticle,
+    });
   }
 
   function handleDelete() {
-      onArticleDelete(_id);
+    onArticleDelete(_id);
   }
 
-  React.useEffect(() => {
-        if (articleSaved) {
-            setIsMark(articleSaved.find((c) => c.title === title));
-        }
-    }, [articleSaved, title])
+  useEffect(() => {
+    if (articleSaved) {
+      setIsMark(articleSaved.find((c) => c.title === title));
+    }
+  }, [articleSaved, title]);
 
   function changeFormatDate(date) {
     let newDate = new Date(date);
@@ -63,28 +72,36 @@ function NewsCard({
     <div className="card">
       <div className="card__container">
         <div className="card__image-container">
-          {loggedIn && location.pathname === "/saved-news" && (
-            <button type="button" className="card__delete-button" onClick={handleDelete}>
+          {location.pathname === "/saved-news" && (
+            <button
+              type="button"
+              className="card__delete-button"
+              onClick={handleDelete}
+            >
               <span className="card__button-tooltip">
                 Убрать из сохранённых
               </span>
             </button>
           )}
-          {loggedIn && location.pathname === "/" ? (
+          {location.pathname === "/" && (
             <button
               type="button"
-              className={`card__save-button ${isMark ? "card__save-button_active" : ""}`}
-              onClick={handleClickSaveArticle}
-            ></button>
-          ) : (
-            <button
-              type="button"
-              className="card__save-button_disabled"
-              disabled
+              className={`card__save-button ${
+                isMark ? "card__save-button_active" : ""
+              }`}
+              onClick={() => {
+                if (!loggedIn) {
+                  onSignUp();
+                } else {
+                  handleClickSaveArticle();
+                }
+              }}
             >
-              <span className="card__button-tooltip">
-                Войдите, чтобы сохранять статьи
-              </span>
+              {!loggedIn && (
+                <span className="card__button-tooltip">
+                  Войдите, чтобы сохранять статьи
+                </span>
+              )}
             </button>
           )}
           {loggedIn && location.pathname === "/saved-news" && (

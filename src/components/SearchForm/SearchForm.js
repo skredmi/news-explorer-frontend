@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./SearchForm.css";
 
-function SearchForm({onSearch}) {
+function SearchForm({ onSearch }) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 

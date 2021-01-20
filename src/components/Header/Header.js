@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import Navigation from '../Navigation/Navigation';
 import "./Header.css";
 
+
 function Header({ onSignIn, loggedIn, onLogOut, name }) {
+
     const location = useLocation();
     return (
         <header className={`header ${location.pathname === '/saved-news' && 'header_black'}`}>

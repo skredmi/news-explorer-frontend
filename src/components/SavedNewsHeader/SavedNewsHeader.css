@@ -42,8 +42,16 @@
   padding: 0;
 }
 
+.news-header__keywords_none {
+  display: none;
+}
+
 .news-header__tag {
   font-weight: 900;
+}
+
+.news-header__tag_none {
+  display: none;
 }
 
 @media screen and (max-width: 930px) {

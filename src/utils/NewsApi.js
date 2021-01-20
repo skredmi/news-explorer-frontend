@@ -1,5 +1,4 @@
-const API_KEY = "41e4acc93a694a7ba813cf1e7b5dbe2a";
-const NEWS_URL = "https://newsapi.org/v2/everything";
+import { NEWS_URL, API_KEY } from "./constants";
 
 let date = new Date();
 const today = date;
@@ -12,7 +11,7 @@ export const getNews = (keyword) => {
     {
       method: "GET",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
       },
     }
   ).then((res) => {

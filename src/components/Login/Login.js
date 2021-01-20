@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
@@ -10,7 +10,7 @@ function Login({ isOpen, onClose, onLogin, onSignUp, errorMessage }) {
     password: "",
   });
 
-   function handleChange(event) {
+  function handleChange(event) {
     const { name, value } = event.target;
     setData({
       ...data,
@@ -37,7 +37,7 @@ function Login({ isOpen, onClose, onLogin, onSignUp, errorMessage }) {
     setData({ email: "", password: "" });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     setData({ email: "", password: "" });
     setIsValidationMessage({ email: "", password: "" });
     setIsValid({ email: false, password: false });
@@ -87,10 +87,19 @@ function Login({ isOpen, onClose, onLogin, onSignUp, errorMessage }) {
       >
         {validationMessage.password}
       </span>
-      <span id="error-message" className="popup__error-message popup__error-message_active">{errorMessage}</span>
+      <span
+        id="error-message"
+        className="popup__error-message popup__error-message_active"
+      >
+        {errorMessage}
+      </span>
       <button
         type="submit"
-        className={`${isValid.email && isValid.password ? "popup__button-save" : "popup__button-save popup__button-save_disabled"}`}
+        className={`${
+          isValid.email && isValid.password
+            ? "popup__button-save"
+            : "popup__button-save popup__button-save_disabled"
+        }`}
       >
         Войти
       </button>

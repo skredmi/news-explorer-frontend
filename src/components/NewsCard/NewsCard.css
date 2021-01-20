@@ -83,23 +83,12 @@
   background-image: url("../../images/bookmark-active.svg");
 }
 
-.card__save-button:hover .card__button-tooltip {
-  visibility: visible;
+.card__save-button_active:hover {
+  background-image: url("../../images/bookmark-active.svg");
 }
 
-.card__save-button_disabled {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 40px;
-  height: 40px;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: url("../../images/bookmark.svg");
-  background-color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  outline: none;
+.card__save-button:hover .card__button-tooltip {
+  visibility: visible;
 }
 
 .card__delete-button {

@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Navigation.css";
 import { Link, useLocation } from "react-router-dom";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
-function Navigation({ onSignIn, loggedIn, onLogOut, name }) {
+function Navigation({ onSignIn, loggedIn, onLogOut }) {
   const [isHumburgerMenuOpened, setIsHumburgerMenuOpened] = useState(false);
   const location = useLocation();
+  const currentUser = useContext(CurrentUserContext);
 
   function handleHumburgerMenuOpen() {
     setIsHumburgerMenuOpened(true);
@@ -85,13 +87,14 @@ function Navigation({ onSignIn, loggedIn, onLogOut, name }) {
                   location.pathname === "/saved-news" && "nav__button_black"
                 }`}
               >
-                {name}
+                {currentUser.name}
                 <i
                   className={`nav__logout-icon ${
                     location.pathname === "/saved-news" &&
                     "nav_logout-icon_black"
                   }`}
-                onClick={onLogOut} ></i>
+                  onClick={onLogOut}
+                ></i>
               </button>
             )}
           </li>

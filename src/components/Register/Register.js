@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
@@ -31,7 +31,7 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
     });
   }
 
-    const handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const { password, email, name } = data;
     onRegister(password, email, name);
@@ -42,8 +42,8 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
     });
   };
 
-  React.useEffect(() => {
-    setData({ email: "", password: "", name: "" }); 
+  useEffect(() => {
+    setData({ email: "", password: "", name: "" });
     setIsValidationMessage({ email: "", password: "", name: "" });
     setIsValid({ email: false, password: false, name: false });
   }, [isOpen]);
@@ -109,8 +109,20 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
       >
         {validationMessage.name}
       </span>
-      <span id="error-message" className="popup__error-message popup__error-message_active">{errorMessage}</span>
-      <button type="submit" className={`${isValid.email && isValid.password && isValid.name ? "popup__button-save" : "popup__button-save popup__button-save_disabled"}`}>
+      <span
+        id="error-message"
+        className="popup__error-message popup__error-message_active"
+      >
+        {errorMessage}
+      </span>
+      <button
+        type="submit"
+        className={`${
+          isValid.email && isValid.password && isValid.name
+            ? "popup__button-save"
+            : "popup__button-save popup__button-save_disabled"
+        }`}
+      >
         Зарегистрироваться
       </button>
       <p className="popup__text">

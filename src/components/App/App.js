@@ -27,7 +27,6 @@ function App() {
   const [articleSaved, setArticleSaved] = useState([]);
   const [articles, setArticles] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
-  const [name, setName] = useState("");
   const [keyword, setKeyword] = useState("");
   const [preloader, setPreloader] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -45,7 +44,7 @@ function App() {
         } else if (res.message) {
           setErrorMessage(res.message);
         } else {
-           setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
+          setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
         }
       })
       .catch((err) => {
@@ -55,18 +54,18 @@ function App() {
       });
   }
 
-    function handleLogin(password, email) {
+  function handleLogin(password, email) {
     auth
       .authorize(password, email)
       .then((data) => {
         if (data.token) {
           setLoggedIn(true);
-          setName(name);
           history.push("/saved-news");
+          setIsLoginPopupOpen(false);
         } else if (data.message) {
           setErrorMessage(data.message);
         } else {
-           setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
+          setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
         }
       })
       .catch((err) => {
@@ -88,7 +87,6 @@ function App() {
       .then((res) => {
         if (res) {
           setLoggedIn(true);
-          setName(res.name);
           setCurrentUser({ name: res.name, id: res._id });
         }
       })
@@ -99,23 +97,22 @@ function App() {
       });
   }
 
-
   function logOut() {
     localStorage.removeItem("token");
-    setName("");
     setLoggedIn(false);
     history.push("/");
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     tokenCheck();
-    // const articles = localStorage.getItem("articles")
-    //   ? JSON.parse(localStorage.getItem("articles"))
-    //   : [];
-    // setArticles(articles);
-    // const keyword = localStorage.getItem('keyword')
-    // setKeyword(keyword)
-  }, []);
+    const articles = localStorage.getItem("articles")
+      ? JSON.parse(localStorage.getItem("articles"))
+      : [];
+    setArticles(articles);
+    const keyword = localStorage.getItem("keyword");
+    setKeyword(keyword);
+    getSavedArticles();
+  }, [loggedIn]);
 
   function handleSearchNews(keyword) {
     setArticles([]);
@@ -146,29 +143,27 @@ function App() {
       });
   }
 
-  function getMySaveNews() {
-    if (loggedIn) {
-      auth
-        .getArticles()
-        .then((news) => {
-          const arrayMyNews = news.filter((c) => (c.owner === currentUser.id));
-          setArticleSaved(arrayMyNews);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }
-
-  function handleSaveNews({
-    keyword, title, text, date, source, link, image,
+  function handleArticleSave({
+    keyword,
+    title,
+    text,
+    date,
+    source,
+    link,
+    image,
   }) {
-      auth
+    auth
       .createArticle({
-    keyword, title, text, date, source, link, image,
-  })
+        keyword,
+        title,
+        text,
+        date,
+        source,
+        link,
+        image,
+      })
       .then((res) => {
-        setArticleSaved([res, ...articleSaved])
+        setArticleSaved([res, ...articleSaved]);
       })
       .catch((err) => {
         console.log(err);
@@ -187,35 +182,60 @@ function App() {
       });
   }
 
-  function findMySevedNews({
-    keyword, title, text, date, source, link, image,
-    article,
-    myArticle }) {
-        const mySavedArticle = articleSaved.find((c) => {
-            if (myArticle) {
-                return c.title === myArticle.title && c.text === myArticle.text;
-            }
-
-            if (article) {
-                return c.title === article.title && c.text === article.description;
-            }
-
+  function getSavedArticles() {
+    if (loggedIn) {
+      auth
+        .getArticles()
+        .then((news) => {
+          const arrayMyNews = news.filter((c) => c.owner === currentUser.id);
+          setArticleSaved(arrayMyNews);
+        })
+        .catch((err) => {
+          console.log(err);
         });
-
-        if (mySavedArticle) {
-            handleArticleDelete(mySavedArticle._id);
-        }
-        else {
-            handleSaveNews({
-    keyword, title, text, date, source, link, image
-  });
-        }
     }
+  }
 
-    React.useEffect(() => {
-        getMySaveNews()
-    }, [currentUser.id, loggedIn]);
-  
+  useEffect(() => {
+    getSavedArticles();
+  }, [currentUser.id, loggedIn]);
+
+  function findSavedArticles({
+    keyword,
+    title,
+    text,
+    date,
+    source,
+    link,
+    image,
+    article,
+    myArticle,
+  }) {
+    const mySavedArticle = articleSaved.find((c) => {
+      if (myArticle) {
+        return c.title === myArticle.title && c.text === myArticle.text;
+      }
+
+      if (article) {
+        return c.title === article.title && c.text === article.description;
+      }
+    });
+
+    if (mySavedArticle) {
+      handleArticleDelete(mySavedArticle._id);
+    } else {
+      handleArticleSave({
+        keyword,
+        title,
+        text,
+        date,
+        source,
+        link,
+        image,
+      });
+    }
+  }
+
   function handleLoginPopupClick() {
     setIsRegisterPopupOpen(false);
     setIsInfoTooltipOpen(false);
@@ -257,22 +277,26 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="App">
         <Switch>
-          <ProtectedRoute exact path="/saved-news" loggedIn={loggedIn} currentUser={currentUser}>
+          <ProtectedRoute
+            exact
+            path="/saved-news"
+            loggedIn={loggedIn}
+
+          >
             <Header
+              loggedIn={loggedIn}
               onSignIn={handleLoginPopupClick}
-              loggedIn={loggedIn}
               onLogOut={logOut}
-              name={name}
             />
-            <SavedNewsHeader name={name} articleSaved={articleSaved} />
+            <SavedNewsHeader articleSaved={articleSaved} />
             <SavedNews
-              articles={articles}
               keyword={keyword}
-              handleSaveNews={handleSaveNews}
-              articleSaved={articleSaved}
               loggedIn={loggedIn}
+              articles={articles}
+              articleSaved={articleSaved}
+              handleArticleSave={handleArticleSave}
               onArticleDelete={handleArticleDelete}
-              getMySaveNews={getMySaveNews}
+              getSavedArticles={getSavedArticles}
             />
             <Footer />
           </ProtectedRoute>
@@ -282,18 +306,18 @@ function App() {
                 onSignIn={handleLoginPopupClick}
                 loggedIn={loggedIn}
                 onLogOut={logOut}
-                name={name}
               />
               <SearchForm onSearch={handleSearchNews} />
             </div>
             <Main
-              articles={articles}
               keyword={keyword}
               loggedIn={loggedIn}
+              articles={articles}
               articleSaved={articleSaved}
-              handleSaveNews={handleSaveNews}
+              handleArticleSave={handleArticleSave}
               onArticleDelete={handleArticleDelete}
-              findMySevedNews={findMySevedNews}
+              findSavedArticles={findSavedArticles}
+              onSignUp={handleRegisterPopupClick}
             />
             {notFound && <NotFound />}
             {preloader && <Preloader />}
@@ -314,11 +338,14 @@ function App() {
               onRegister={handleRegister}
               errorMessage={errorMessage}
             />
-          <InfoPopup
-            isOpen={isInfoTooltipOpen}
-            onClose={closeAllPopups}
-            onSignIn={handleLoginPopupClick}
-          />
+            <InfoPopup
+              isOpen={isInfoTooltipOpen}
+              onClose={closeAllPopups}
+              onSignIn={handleLoginPopupClick}
+            />
+          </Route>
+          <Route>
+            {loggedIn ? <Redirect to="/saved-news" /> : <Redirect to="/" />}
           </Route>
         </Switch>
       </div>
