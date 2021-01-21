@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
-
+function Login({ isOpen, onClose, onLogin, onSignUp, errorMessage }) {
+  const [data, setData] = useState({ email: "", password: "" });
   const [isValid, setIsValid] = useState({ email: false, password: false });
   const [validationMessage, setIsValidationMessage] = useState({
     email: "",
@@ -11,7 +12,8 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
   function handleChange(event) {
     const { name, value } = event.target;
-
+    setData({
+      ...data,
       [name]: value,
     });
     setIsValid({
@@ -24,7 +26,19 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
     });
   }
 
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+    const { password, email } = data;
 
+    if (!email || !password) {
+      return;
+    }
+    onLogin(password, email);
+    setData({ email: "", password: "" });
+  };
+
+  useEffect(() => {
+    setData({ email: "", password: "" });
     setIsValidationMessage({ email: "", password: "" });
     setIsValid({ email: false, password: false });
   }, [isOpen]);
@@ -41,7 +55,7 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
       <input
         className="popup__input"
         onChange={handleChange}
-
+        value={data.email}
         id="email-input"
         type="email"
         name="email"
@@ -60,7 +74,7 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
       <input
         className="popup__input"
         onChange={handleChange}
-
+        value={data.password}
         id="password-input"
         placeholder="Введите пароль"
         type="password"
@@ -73,12 +87,25 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
       >
         {validationMessage.password}
       </span>
-
+      <span
+        id="error-message"
+        className="popup__error-message popup__error-message_active"
+      >
+        {errorMessage}
+      </span>
+      <button
+        type="submit"
+        className={`${
+          isValid.email && isValid.password
+            ? "popup__button-save"
+            : "popup__button-save popup__button-save_disabled"
+        }`}
+      >
         Войти
       </button>
       <p className="popup__text">
         или
-
+        <button type="button" className="popup__button-link" onClick={onSignUp}>
           Зарегистрироваться
         </button>
       </p>
