@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../PopupWithForm/PopupWithForm.css";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
-function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
-  const [data, setData] = useState({ email: "", password: "", name: "" });
+
   const [isValid, setIsValid] = useState({
     email: false,
     password: false,
@@ -17,33 +16,11 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setData({
-      ...data,
-      [name]: value,
-    });
-    setIsValid({
-      ...isValid,
-      [name]: event.target.validity.valid,
-    });
-    setIsValidationMessage({
-      ...validationMessage,
-      [name]: event.target.validationMessage,
-    });
-  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { password, email, name } = data;
-    onRegister(password, email, name);
-    setData({
-      email: "",
-      password: "",
-      name: "",
     });
   };
 
-  useEffect(() => {
-    setData({ email: "", password: "", name: "" });
+
     setIsValidationMessage({ email: "", password: "", name: "" });
     setIsValid({ email: false, password: false, name: false });
   }, [isOpen]);
@@ -60,7 +37,7 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
       <input
         className="popup__input"
         onChange={handleChange}
-        value={data.email}
+
         id="email-input"
         type="email"
         name="email"
@@ -79,7 +56,7 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
       <input
         className="popup__input"
         onChange={handleChange}
-        value={data.password}
+
         id="password-input"
         placeholder="Введите пароль"
         type="password"
@@ -96,7 +73,7 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
       <input
         className="popup__input"
         onChange={handleChange}
-        value={data.name}
+
         id="name-input"
         placeholder="Введите имя"
         type="text"
@@ -109,20 +86,7 @@ function Register({ isOpen, onClose, onSignIn, onRegister, errorMessage }) {
       >
         {validationMessage.name}
       </span>
-      <span
-        id="error-message"
-        className="popup__error-message popup__error-message_active"
-      >
-        {errorMessage}
-      </span>
-      <button
-        type="submit"
-        className={`${
-          isValid.email && isValid.password && isValid.name
-            ? "popup__button-save"
-            : "popup__button-save popup__button-save_disabled"
-        }`}
-      >
+
         Зарегистрироваться
       </button>
       <p className="popup__text">

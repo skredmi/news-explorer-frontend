@@ -31,10 +31,7 @@ function SearchForm({ onSearch }) {
         <input
           className="search-form__input"
           placeholder="Введите тему новости"
-          id="input-error"
-          required
-          onChange={handleChangeKeyword}
-          value={searchKeyword || ""}
+
         />
         <span id="search-input-error" className="search-form__input-error">
           {errorMessage}

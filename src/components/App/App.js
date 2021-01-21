@@ -34,25 +34,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const history = useHistory();
 
-  function handleRegister(password, email, name) {
-    auth
-      .register(password, email, name)
-      .then((res) => {
-        if (res.data) {
-          setIsRegisterPopupOpen(false);
-          setIsInfoTooltipOpen(true);
-        } else if (res.message) {
-          setErrorMessage(res.message);
-        } else {
-          setErrorMessage("Ошибка сервера. Попробуйте ещё раз!");
-        }
-      })
-      .catch((err) => {
-        if (err === 400) {
-          console.log("некорректно заполнено одно из полей");
-        }
-      });
-  }
+
 
   function handleLogin(password, email) {
     auth
