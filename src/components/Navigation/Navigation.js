@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Navigation.css";
 import { Link, useLocation } from "react-router-dom";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
-function Navigation({ onLogin, loggedIn }) {
+function Navigation({ onSignIn, loggedIn, onLogOut }) {
   const [isHumburgerMenuOpened, setIsHumburgerMenuOpened] = useState(false);
   const location = useLocation();
+  const currentUser = useContext(CurrentUserContext);
 
   function handleHumburgerMenuOpen() {
     setIsHumburgerMenuOpened(true);
@@ -76,7 +78,7 @@ function Navigation({ onLogin, loggedIn }) {
           </li>
           <li className="nav__list-item">
             {!loggedIn ? (
-              <button onClick={onLogin} className="nav__button">
+              <button onClick={onSignIn} className="nav__button">
                 Авторизоваться
               </button>
             ) : (
@@ -85,12 +87,13 @@ function Navigation({ onLogin, loggedIn }) {
                   location.pathname === "/saved-news" && "nav__button_black"
                 }`}
               >
-                Грета
+                {currentUser.name}
                 <i
                   className={`nav__logout-icon ${
                     location.pathname === "/saved-news" &&
                     "nav_logout-icon_black"
                   }`}
+                  onClick={onLogOut}
                 ></i>
               </button>
             )}

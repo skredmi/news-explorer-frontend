@@ -1,25 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Main.css";
 import NewsCardList from "../NewsCardList/NewsCardList";
 import NewsCard from "../NewsCard/NewsCard";
-import { cards } from "../../utils/cards";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
-function Main() {
+function Main({
+  loggedIn,
+  keyword,
+  articles,
+  articleSaved,
+  onArticleDelete,
+  handleArticleSave,
+  findSavedArticles,
+  onSignUp,
+}) {
+  const currentUser = useContext(CurrentUserContext);
   const [showButton, setShowButton] = useState(false);
   const [showCards, setShowCards] = useState([]);
 
   useEffect(() => {
-    setShowCards(cards.slice(0, 3));
-    if (cards.length <= 3) {
+    setShowCards(articles.slice(0, 3));
+    if (articles.length <= 3) {
       setShowButton(false);
     } else {
       setShowButton(true);
     }
-  }, []);
+  }, [articles]);
 
   function handleShowButtonClick() {
-    setShowCards(cards.slice(0, showCards.length + 3));
-    if (showCards.length >= cards.length - 3) {
+    setShowCards(articles.slice(0, showCards.length + 3));
+    if (showCards.length >= articles.length - 3) {
       setShowButton(false);
     }
   }
@@ -28,15 +38,26 @@ function Main() {
     <main className="main">
       <h2 className="main__title">Результаты поиска</h2>
       <NewsCardList>
-        {showCards.map((cards) => (
+        {showCards.map((article, key) => (
           <NewsCard
-            tag={cards.tag}
-            image={cards.image}
-            date={cards.date}
-            title={cards.title}
-            text={cards.text}
-            source={cards.source}
-            sourceLink={cards.sourceLink}
+            keyword={keyword}
+            tag={keyword}
+            sourceLink={article.url}
+            image={article.urlToImage}
+            title={article.title}
+            date={article.publishedAt}
+            text={article.description}
+            source={article.source.name}
+            loggedIn={loggedIn}
+            key={key}
+            handleArticleSave={handleArticleSave}
+            findSavedArticles={findSavedArticles}
+            currentUser={currentUser}
+            onArticleDelete={onArticleDelete}
+            articleSaved={articleSaved}
+            articles={articles}
+            onSignUp={onSignUp}
+            article={article}
           />
         ))}
       </NewsCardList>
