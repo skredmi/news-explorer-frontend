@@ -2,15 +2,6 @@
 
 NewsExplorer - сервис поиска новостей. Вы можете искать новости по ключевым словам 7-ми дневной давности от текущей даты. Если пользователь авторизован, то он сможет сохранять понравившиеся статьи и удалять уже имеющиеся.
 
-Сайт размещен на Яндекс.Облако.
-
-***
-[Ссылка на frontend](https://diplom.students.nomoredomains.work)
-[Ссылка на backend](https://api.diplom.students.nomoredomains.work)
-
-Доменное имя: diplom.students.nomoredomains.work;
-Публичный IP-адрес: 178.154.229.221
-
 ![news](https://user-images.githubusercontent.com/63904240/209445508-66b106f1-0171-4fb1-92aa-0cf5b839e24a.JPG)
 
 
